@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-EVSTQN3/azprG1Anm3QDgpJLIm9Nao0Yz1ztcQTwFspd3yD65VohhpuuCOmLASjC" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"
+        integrity="sha384-DyZ88mC6Up2uqS4h/KRgHuoeGwBcD4Ng9SiP4dIRy0EXTlnuz47vAwmeGwVChigm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"
+        integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/styles/style.css">
+    <title>Novo Orçamento</title>
+</head>
+
+<body class="container-fluid" onload="atualizarData();getJSONEstoque();">
+    <div class="row">
+        <section class="side-menu col-2">
+            <div class="row">
+                <div class="logo-area col">
+                    
+                </div>
+            </div>
+            <div class="row sub-menu">
+                <div role="button" class="toggler row align-items-center collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#menuEstoque" aria-expanded="false" aria-controls="menuEstoque">
+                    <p class="col-10"><i class="fas fa-cubes"></i> Estoque</p>
+                    <i class="fas fa-chevron-up col-2"></i>
+                    <i class="fas fa-chevron-down col-2"></i>
+
+                </div>
+                <div class="collapse multi-collapse list" id="menuEstoque">
+                    <ul>
+                        <li><a href="/registrar-estoque">
+                                <div class="side-btn"><i class="fas fa-plus-circle"></i> Registrar Estoque</div>
+                            </a></li>
+                        <li><a href="/listagem-estoque">
+                                <div class="side-btn2"><i class="fas fa-list-ul"></i> Listagem do Estoque</div>
+                            </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row sub-menu">
+                <div role="button" class="toggler row align-items-center collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#menuOrcamento" aria-expanded="false" aria-controls="menuOrcamento">
+                    <p class="col-10"><i class="fas fa-coins"></i> Orçamento</p>
+                    <i class="fas fa-chevron-up col-2"></i>
+                    <i class="fas fa-chevron-down col-2"></i>
+                </div>
+                <div class="collapse multi-collapse list" id="menuOrcamento">
+                    <ul>
+                        <li><a href="/novo-orcamento">
+                                <div class="side-btn col-12"><i class="fas fa-plus-circle"></i> Novo Orçamento</div>
+                            </a></li>
+                        <li><a href="/lista-orcamento">
+                                <div class="side-btn2"><i class="fas fa-list-ul"></i> Lista de Orçamentos</div>
+                            </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row sub-menu">
+                <div role="button" class="toggler row align-items-center collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#menuPedido" aria-expanded="false" aria-controls="menuPedido">
+                    <p class="col-10"><i class="fas fa-clipboard"></i> Pedido</p>
+                    <i class="fas fa-chevron-up col-2"></i>
+                    <i class="fas fa-chevron-down col-2"></i>
+                </div>
+                <div class="collapse multi-collapse list" id="menuPedido">
+                    <ul>
+                        <li><a href="/lista-pedido">
+                                <div class="side-btn2"><i class="fas fa-list-ul"></i> Lista de Pedidos</div>
+                            </a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="row sub-menu">
+                <div role="button" class="toggler row align-items-center collapsed" data-bs-toggle="collapse"
+                    data-bs-target="#menuGastos" aria-expanded="false" aria-controls="menuGastos">
+                    <p class="col-10"><i class="fas fa-money-bill-wave"></i> Gastos</p>
+                    <i class="fas fa-chevron-up col-2"></i>
+                    <i class="fas fa-chevron-down col-2"></i>
+                </div>
+                <div class="collapse multi-collapse list" id="menuGastos">
+                    <ul>
+                        <li><a href="/listagem-gastos">
+                                <div class="side-btn"><i class="fas fa-list-ul"></i> Listagem</div>
+                            </a></li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+
+        <section class="principal-content col-10">
+            <div class="title row align-items-center">
+                <h1 class="col-12 text-center">Novo Orçamento</h1>
+            </div>
+            <div class="form-orcamento row">
+                <form class="needs-validation" action="add-orcamento" method="post">
+                    <div class="row align-items-center dados">
+                        <h2 class="col-12 text-center">Dados do cliente</h2>
+                        <div class="row"><label><b>Dados pessoais:</b></label></div>
+                        <div class="row">
+                            <div class="col-5 form-dados form-dadoPessoal">
+                                <label>CPF/CNPJ:</label>
+                                <input onblur="getCliente();" type="text" name="cpfCliente" id="cpfCliente"
+                                    placeholder="Insira o CPF/CNPJ" class="form-control has-validation" aria-describedby="cpfFeedback" required>
+                                <div id="cpfFeedback" class="invalid-feedback">
+                                    Insira um CPF
+                                </div>
+
+                            </div>
+                            <div class="col-7 form-dados form-nome">
+                                <label>Nome:</label>
+                                <input type="text" name="nomeCliente" id="nomeCliente"
+                                    placeholder="Insira o nome do cliente" class="form-control" required>
+                            </div>
+                        </div>
+                        <div class="row"><label><b>Contato:</b></label></div>
+                        <div class="row">
+
+                            <div class="col-3 form-dados form-telefone">
+                                <label>Telefone 1:</label>
+                                <input type="tel" name="telefoneCliente" id="telefoneCliente"
+                                    placeholder="Telefone primário" class="form-control">
+                            </div>
+                            <div class="col-3 form-dados form-telefone">
+                                <label>Telefone 2:</label>
+                                <input type="tel" name="telefoneCliente2" id="telefoneCliente2"
+                                    placeholder="Telefone secundário" class="form-control">
+                            </div>
+                        </div>
+                        <div class="row"><label><b>Endereço:</b></label></div>
+                        <div class="row">
+                            <div class="col-2 form-dados form-endereco">
+                                <label>CEP:</label>
+                                <input type="text" name="cepCliente" id="cepCliente" placeholder="Insira o CEP"
+                                    class="form-control">
+                            </div>
+                            <div class="col-5 form-dados form-endereco">
+                                <label>Logradouro:</label>
+                                <input type="text" name="logradouroCliente" id="logradouroCliente"
+                                    placeholder="Insira o logradouro (rua, avenida, alameda, etc.)"
+                                    class="form-control">
+                            </div>
+                            <div class="col-3 form-dados form-endereco">
+                                <label>Bairro:</label>
+                                <input type="text" name="bairroCliente" id="bairroCliente" placeholder="Insira o bairro"
+                                    class="form-control">
+                            </div>
+                            <div class="col-2 form-dados form-endereco">
+                                <label>Número:</label>
+                                <input type="text" name="numCliente" id="numCliente" placeholder="Insira o Nº"
+                                    class="form-control">
+                            </div>
+
+                        </div>
+                        <div class="row">
+                            <div class="col-4 form-dados form-endereco">
+                                <label>Cidade:</label>
+                                <input type="text" name="cidadeCliente" id="cidadeCliente" placeholder="Insira a cidade"
+                                    class="form-control">
+                            </div>
+                            <div class="col-2 form-dados form-endereco">
+                                <label>Estado:</label>
+                                <select type="text" name="estadoCliente" id="estadoCliente" placeholder="UF"
+                                    class="form-control">
+                                    <option value="0">N/A</option>
+                                    <option value="AC">AC</option>
+                                    <option value="AL">AL</option>
+                                    <option value="AP">AP</option>
+                                    <option value="AM">AM</option>
+                                    <option value="BA">BA</option>
+                                    <option value="CE">CE</option>
+                                    <option value="DF">DF</option>
+                                    <option value="ES">ES</option>
+                                    <option value="GO">GO</option>
+                                    <option value="MA">MA</option>
+                                    <option value="MT">MT</option>
+                                    <option value="MS">MS</option>
+                                    <option value="MG">MG</option>
+                                    <option value="PA">PA</option>
+                                    <option value="PB">PB</option>
+                                    <option value="PR">PR</option>
+                                    <option value="PE">PE</option>
+                                    <option value="PI">PI</option>
+                                    <option value="RJ">RJ</option>
+                                    <option value="RN">RN</option>
+                                    <option value="RS">RS</option>
+                                    <option value="RO">RO</option>
+                                    <option value="RR">RR</option>
+                                    <option value="SC">SC</option>
+                                    <option selected value="SP">SP</option>
+                                    <option value="SE">SE</option>
+                                    <option value="TO">TO</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <h2 class="col-12 text-center">Dados do Orçamento</h2>
+
+                        <div class="col-2">
+                            <label for="data">Data do orçamento:</label>
+                        </div>
+                        <div class="col-6">
+                            <input type="date" name="data" id="data" class="form-control" onmousemove="atualizarData()">
+                        </div>
+
+                    </div>
+                    <div class="row">
+                        <table id="tableProdutos" class="table-orcamentos table table-striped table-bordered">
+                            <tr>
+                                <th scope="col">Quantidade cópias</th>
+                                <th scope="col">Tipo de papel</th>
+                                <th scope="col">Formato</th>
+                                <th scope="col">Colorido</th>
+                                <th scope="col">Extra</th>
+                                <th scope="col">Valor Extra</th>
+
+                            </tr>
+                            <tr>
+                                <th class="table-input-quant" scope="row">
+                                    <input type="number" min="1" value="1" name="quantidade" 
+                                        class="form-control form-table input-qtd" required>
+                                </th>
+                                <th class="table-input-desc">
+                                    <select name="produto"  class="form-select select-produto" required>
+                                    </select>
+                                </th>
+                                <th class="table-input-formato">
+                                    <select class="form-select select-formato" name="formato" required>
+                                        <option selected disabled>Selecione o formato</option>
+                                        <option disabled>66 x 96</option>
+                                        <option value="1">Formato 33x48</option>
+                                        <option value="2">Formato 32x33</option>
+                                        <option value="3">Formato 24x42</option>
+                                        <option value="4">Formato 22x48</option>
+                                        <option value="5">Formato 22x37</option>
+                                        <option value="6">Formato 24x33</option>
+                                        <option value="7">Formato 22x32</option>
+                                        <option value="8">Formato 19,2x33</option>
+                                        <option value="9">Formato 16x33</option>
+                                        <option value="10">Formato 22x24</option>
+                                        <option value="11">Formato 19,2x23,4</option>
+                                        <option value="12">Formato 19,2x22</option>
+                                        <option value="13">Formato 16,5x24</option>
+                                        <option value="14">Formato 16x22</option>
+                                        <option value="15">Formato 12,3x22</option>
+                                        <option value="16">Formato 16x16,5</option>
+                                        <option value="17">Formato 13,2x19,2</option>
+                                        <option value="18">Formato 15,75x16,5</option>
+                                        <option value="19">Formato 12x16,5</option>
+                                        <option disabled>64 x 88</option>
+                                        <option value="20">Formato 32x44</option>
+                                        <option value="21">Formato 29,33x32</option>
+                                        <option value="22">Formato 22x24</option>
+                                        <option value="23">Formato 21,3x44</option>
+                                        <option value="24">Formato 21,3x33</option>
+                                        <option value="25">Formato 22x32</option>
+                                        <option value="26">Formato 21,3x29,3</option>
+                                        <option value="27">Formato 17,6x32</option>
+                                        <option value="28">Formato 21,3x22,25</option>
+                                        <option value="29">Formato 21,3x22</option>
+                                        <option value="30">Formato 17,6x23,2</option>
+                                        <option value="31">Formato 17,6x21,3</option>
+                                        <option value="32">Formato 16x22</option>
+                                        <option value="33">Formato 14,6x21,3</option>
+                                        <option value="34">Formato 14x16</option>
+                                        <option value="35">Formato 11,1x21,3</option>
+                                        <option value="36">Formato 14,6x16</option>
+                                        <option value="37">Formato 12,6x17,6</option>
+                                        <option value="38">Formato 11x16</option>
+                                    </select>
+                                </th>
+                                <th class="table-input-color">
+                                    <div class="form-check form-switch">
+                                        <input onchange="setValue(this);" value="true"
+                                            class="form-check-input input-color" type="checkbox" name="colorido">
+                                        <input type="hidden" name="colorido" value="false">
+                                    </div>
+                                </th>
+                                <th class="table-input-desc" scope="row">
+                                    <input type="text" name="extra" 
+                                        class="form-control form-table input-extra">
+                                </th>
+                                <th class="table-input-valorExtra" scope="row">
+                                    <input type="number" min="0" step="0.01" name="valorExtra" 
+                                        class="form-control form-table input-valorExtra">
+                                </th>
+                            </tr>
+                        </table>
+
+                    </div>
+                    <div class="row">
+                        <div class="col-8"></div>
+                        <button onclick="inserirLinha();" type="button" class="col-4"> <i
+                                class="fas fa-plus-circle"></i>
+                            Inserir linha</button>
+                    </div>
+                    <div class="row mt-2">
+                        <button type="submit" class="col-12 btn-primary">
+                            Concluir
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </section>
+
+    </div>
+
+    <script src="/scripts/actionsNovoOrcamento.js"></script>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-MrcW6ZMFYlzcLA8Nl+NtUVF0sA7MsXsP1UyJoMp4YLEuNSfAP+JcXn/tWtIaxVXM"
+        crossorigin="anonymous"></script>
+
+</body>
+
+</html>
