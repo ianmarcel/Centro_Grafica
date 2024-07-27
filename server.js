@@ -1,59 +1,59 @@
-const express = require('express')
-const path = require('path')
-const pg = require('pg')
-const Sequelize = require('sequelize')
-const Op = Sequelize.Op
-const Pedido = require('./models/Pedido')
-const Estoque = require('./models/Estoque')
-const Cliente = require('./models/Cliente')
-const ItemPedido = require('./models/ItemPedido')
-const app = express()
-const bodyParser = require("body-parser")
-const Gastos = require('./models/Gastos')
-const {calcQtd} = require('./calculo-quantidade')
+const express = require('express');
+const path = require('path');
+const pg = require('pg');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
+const Pedido = require('./models/Pedido');
+const Estoque = require('./models/Estoque');
+const Cliente = require('./models/Cliente');
+const ItemPedido = require('./models/ItemPedido');
+const Gastos = require('./models/Gastos');
+const { calcQtd } = require('./scripts/calculo_quantidade');
+const app = express();
+const bodyParser = require("body-parser");
 
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 3000;
 
-pg.defaults.ssl = true
-app.set('view engine', 'ejs')
+pg.defaults.ssl = true;
 
-app.use(express.static("public"))
+// Configurar EJS como mecanismo de template para arquivos .html
+app.engine('html', require('ejs').renderFile);
+app.set('view engine', 'html');
+app.set('views', path.join(__dirname, 'pages'));
 
-app.set('views', path.join(__dirname, 'views'))
-
-app.use(bodyParser.urlencoded({ extended: true }))
+app.use(bodyParser.urlencoded({ extended: true }));
 
 app.get('/', (req, res) => {
-  res.render('index')
-})
+  res.render('index.html');
+});
 
 app.get('/index', (req, res) => {
-  res.render('index')
-})
+  res.render('index.html');
+});
 
 app.get("/novo-orcamento", (req, res) => {
-  res.render('novoOrcamento')
-})
+  res.render('novoOrcamento.html');
+});
 
 app.get('/lista-orcamento', (req, res) => {
-  res.render('listaOrcamento')
-})
+  res.render('listagemOrcamento.html');
+});
 
 app.get('/registrar-estoque', (req, res) => {
-  res.render('registrarEstoque')
-})
+  res.render('registrarEstoque.html');
+});
 
 app.get('/listagem-estoque', (req, res) => {
-  res.render('listagemEstoque')
-})
+  res.render('listagemEstoques.html');
+});
 
 app.get('/listagem-gastos', (req, res) => {
-  res.render('listagemGastos')
-})
+  res.render('listagemGastos.html');
+});
 
 app.get('/lista-pedido', (req, res) => {
-  res.render('listaPedidos')
-})
+  res.render('listagemPedidos.html');
+});
 
 app.get('/json/lista-orcamento', async (req, res) => {
   const resp = await Pedido.findAll({
@@ -61,25 +61,24 @@ app.get('/json/lista-orcamento', async (req, res) => {
     where: {
       status_pedido: 'Em_orcamento'
     },
-    include: [Cliente,
-      ItemPedido]
-  })
-  return res.json(resp)
-})
+    include: [Cliente, ItemPedido]
+  });
+  return res.json(resp);
+});
 
 app.get('/json/orcamento/:id', async (req, res) => {
   const resp = await Pedido.findByPk(req.params.id, {
     include: [Cliente, ItemPedido]
   });
   return res.json(resp);
-})
+});
 
 app.get('/json/cliente/:cpf', async (req, res) => {
   const resp = await Cliente.findOne({ where: { cpf: req.params.cpf } }).catch((err) => {
-    console.log(err)
-  })
+    console.log(err);
+  });
   return res.json(resp);
-})
+});
 
 app.get('/json/lista-pedido', async (req, res) => {
   const resp = await Pedido.findAll({
@@ -91,34 +90,34 @@ app.get('/json/lista-pedido', async (req, res) => {
     },
     order: ['status_pedido'],
     include: [Cliente, ItemPedido]
-  })
+  });
 
-  return res.json(resp)
-})
+  return res.json(resp);
+});
 
 app.get('/json/lista-estoque', async (req, res) => {
   const resp = await Estoque.findAll({
     attributes: ['id', 'quantidade', 'valor', 'descricao', 'tipo'],
     order: ['tipo', 'quantidade']
-  })
+  });
 
-  return res.json(resp)
-})
+  return res.json(resp);
+});
 
 app.get('/json/estoque/:id', async (req, res) => {
-  const resp = await Estoque.findByPk(req.params.id)
+  const resp = await Estoque.findByPk(req.params.id);
 
-  return res.json(resp)
-})
+  return res.json(resp);
+});
 
 app.get('/json/lista-gastos', async (req, res) => {
   const resp = await Gastos.findAll({
     include: Estoque,
     order: ['createdAt']
-  })
+  });
 
-  return res.json(resp)
-})
+  return res.json(resp);
+});
 
 app.get('/json/gastos-periodo/:inicio/:fim', async (req, res) => {
   const resp = await Gastos.findAll({
@@ -129,13 +128,13 @@ app.get('/json/gastos-periodo/:inicio/:fim', async (req, res) => {
     },
     include: Estoque,
     order: ['createdAt']
-  })
+  });
 
-  return res.json(resp)
-})
+  return res.json(resp);
+});
 
 app.post('/add-orcamento', async (req, res) => {
-  const cpf = req.body.cpfCliente
+  const cpf = req.body.cpfCliente;
 
   const [cliente, created] = await Cliente.findOrCreate({
     where: {
@@ -154,10 +153,10 @@ app.post('/add-orcamento', async (req, res) => {
       cpf: req.body.cpfCliente
     }
   }).catch((err) => {
-    console.log(err)
-  })
+    console.log(err);
+  });
 
-  if (created)
+  if (!created)
     await Cliente.update({
       nome: req.body.nomeCliente,
       telefone1: req.body.telefoneCliente,
@@ -173,29 +172,29 @@ app.post('/add-orcamento', async (req, res) => {
       where: {
         cpf: cpf
       }
-    })
+    });
 
   const pedido = await Pedido.create({
     idCliente: cliente.id,
     data_pedido: req.body.data,
     status_pedido: 'Em_orcamento'
   }).catch((err) => {
-    console.log(err)
-  })
+    console.log(err);
+  });
 
   if (typeof req.body.produto === "object")
-    for (i = 0; i < req.body.produto.length; i++) {
+    for (let i = 0; i < req.body.produto.length; i++) {
       await ItemPedido.create({
         quantidade: req.body.quantidade[i],
         colorido: req.body.colorido[i],
         formato_papel: req.body.formato[i],
         idEstoque: req.body.produto[i],
         idPedido: pedido.id,
-          extra: req.body.extra[i],
-          valorExtra: req.body.valorExtra[i]
+        extra: req.body.extra[i],
+        valorExtra: req.body.valorExtra[i]
       }).catch((err) => {
-        console.log(err)
-      })
+        console.log(err);
+      });
     }
   else {
     await ItemPedido.create({
@@ -204,14 +203,14 @@ app.post('/add-orcamento', async (req, res) => {
       formato_papel: req.body.formato,
       idEstoque: req.body.produto,
       idPedido: pedido.id,
-          extra: req.body.extra,
-          valorExtra: req.body.valorExtra
+      extra: req.body.extra,
+      valorExtra: req.body.valorExtra
     }).catch((err) => {
-      console.log(err)
-    })
+      console.log(err);
+    });
   }
-  return res.redirect('/lista-orcamento')
-})
+  return res.redirect('/lista-orcamento');
+});
 
 app.post('/altera-estoque/:id', async (req, res) => {
   await Estoque.update({
@@ -221,43 +220,43 @@ app.post('/altera-estoque/:id', async (req, res) => {
       id: req.params.id
     }
   }).then(() => {
-    res.redirect('/listagem-estoque')
-  })
-})
+    res.redirect('/listagem-estoque');
+  });
+});
 
 app.post('/pedidos/:id/finalizar', async (req, res) => {
   const itemsPedido = await ItemPedido.findAll({ where: { idPedido: req.params.id } });
-  for(let i=0; i<itemsPedido.length; i++){
+  for (let i = 0; i < itemsPedido.length; i++) {
     const itemPedido = itemsPedido[i];
     await Estoque.update({
-      quantidade: Sequelize.literal('quantidade - '+ calcQtd(itemPedido.quantidade, itemPedido.formato_papel, itemPedido.colorido))
+      quantidade: Sequelize.literal('quantidade - ' + calcQtd(itemPedido.quantidade, itemPedido.formato_papel, itemPedido.colorido))
     }, {
       where: {
         id: itemPedido.idEstoque
       }
-    })
+    });
   }
   res.status(200).send("ok");
-})
+});
 
 app.post('/altera-estoque/:id/:op', async (req, res) => {
-  const estoque = await Estoque.findByPk(req.params.id)
-  const { quantidade } = req.body
-  var qtd = estoque.quantidade
+  const estoque = await Estoque.findByPk(req.params.id);
+  const { quantidade } = req.body;
+  let qtd = estoque.quantidade;
 
   if (req.params.op == 'add') {
-    qtd += parseInt(quantidade, 10)
+    qtd += parseInt(quantidade, 10);
     await Gastos.create({
       quantidade: quantidade,
       valor: req.body.precoCompra,
       idEstoque: req.params.id
-    })
+    });
+  } else if (req.params.op == 'remove') {
+    qtd -= parseInt(quantidade, 10);
   }
-  else if (req.params.op == 'remove')
-    qtd -= parseInt(quantidade, 10)
 
   if (qtd < 0)
-    return res.redirect('/listagem-estoque')
+    return res.redirect('/listagem-estoque');
 
   await Estoque.update({
     quantidade: qtd
@@ -266,11 +265,9 @@ app.post('/altera-estoque/:id/:op', async (req, res) => {
       id: req.params.id
     }
   }).then(() => {
-    res.redirect('/listagem-estoque')
-  })
-
-
-})
+    res.redirect('/listagem-estoque');
+  });
+});
 
 app.post('/add-estoque', async (req, res) => {
   await Estoque.create({
@@ -279,15 +276,15 @@ app.post('/add-estoque', async (req, res) => {
     valor: req.body.valor,
     tipo: req.body.tipo
   }).then(() => {
-    res.redirect('/listagem-estoque')
+    res.redirect('/listagem-estoque');
   }).catch((err) => {
-    console.log(err)
-  })
-})
+    console.log(err);
+  });
+});
 
 app.post('/update-orcamento/:id', async (req, res) => {
   if (typeof req.body.id === "object") {
-    for (i = 0; i < req.body.id.length; i++) {
+    for (let i = 0; i < req.body.id.length; i++) {
       await ItemPedido.findOrCreate({
         where: {
           id: req.body.id[i]
@@ -301,7 +298,7 @@ app.post('/update-orcamento/:id', async (req, res) => {
           extra: req.body.extra[i],
           valorExtra: req.body.valorExtra[i]
         }
-      })
+      });
       await ItemPedido.update({
         quantidade: req.body.quantidade[i],
         colorido: req.body.colorido[i],
@@ -314,11 +311,9 @@ app.post('/update-orcamento/:id', async (req, res) => {
         where: {
           id: req.body.id[i]
         }
-      })
-
+      });
     }
-  }
-  else
+  } else {
     await ItemPedido.update({
       quantidade: req.body.quantidade,
       colorido: req.body.colorido,
@@ -331,25 +326,24 @@ app.post('/update-orcamento/:id', async (req, res) => {
       where: {
         id: req.body.id
       }
-    })
-  return res.redirect('/lista-orcamento')
-})
+    });
+  }
+  return res.redirect('/lista-orcamento');
+});
 
 app.post('/altera-status/:id/:tipo', (req, res) => {
   Pedido.update({
     status_pedido: req.params.tipo
-  },
-    {
-      where: {
-        id: req.params.id
-      }
+  }, {
+    where: {
+      id: req.params.id
     }
-  ).then(() => {
-    res.redirect('/lista-orcamento')
+  }).then(() => {
+    res.redirect('/lista-orcamento');
   }).catch((err) => {
-    console.log(err)
-  })
-})
+    console.log(err);
+  });
+});
 
 app.post('/add-gastos', (req, res) => {
   Gastos.create({
@@ -357,25 +351,21 @@ app.post('/add-gastos', (req, res) => {
     descricao: req.body.descricao,
     valor: req.body.valor
   }).then(() => {
-    res.redirect('gastos')
+    res.redirect('gastos');
   }).catch((erro) => {
-    console.log(erro)
-  })
-})
-
-//teste
+    console.log(erro);
+  });
+});
 
 app.post('/teste', (req, res) => {
-  const tipo = typeof req.body.id
+  const tipo = typeof req.body.id;
   let obj = {
     tipo: tipo,
     tamanho: req.body.id.length
-  }
-  return res.json([obj, req.body])
-})
-
-
+  };
+  return res.json([obj, req.body]);
+});
 
 app.listen(port, () => {
-  console.log('Server running on port %d', port)
-})
+  console.log('Server running on port %d', port);
+});
