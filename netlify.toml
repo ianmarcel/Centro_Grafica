@@ -1,0 +1,7 @@
+[build]
+  base = "/"
+  publish = "/"
+  command = "" # Se não houver comando de build
+
+[dev]
+  command = "npm start"
