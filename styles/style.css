@@ -44,12 +44,12 @@ body{
     background-image: url("/images/background.jpg");
     width: 100%;
     background-size: 100%;
+    max-height: 10px;
 }
 
-.logo-area>img{
+.logo-area > a > img {
     width: 100%;
     margin: 0 0px;
-    
 }
 
 .sub-menu .toggler {
