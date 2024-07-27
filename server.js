@@ -12,50 +12,52 @@ const { calcQtd } = require('./scripts/calculo_quantidade');
 const app = express();
 const bodyParser = require("body-parser");
 
+import firebaseApp from './firebaseConfig';
+
 const port = process.env.PORT || 3000;
 
 pg.defaults.ssl = true;
 
-// Configurar EJS como mecanismo de template para arquivos .html
-app.engine('html', require('ejs').renderFile);
-app.set('view engine', 'html');
-app.set('views', path.join(__dirname, 'pages'));
+// // Configurar EJS como mecanismo de template para arquivos .html
+// app.engine('html', require('ejs').renderFile);
+// app.set('view engine', 'html');
+// app.set('views', path.join(__dirname, 'pages'));
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
+app.get('/', (_req, res) => {
   res.render('index.html');
 });
 
-app.get('/index', (req, res) => {
+app.get('/index', (_req, res) => {
   res.render('index.html');
 });
 
-app.get("/novo-orcamento", (req, res) => {
+app.get("/novo-orcamento", (_req, res) => {
   res.render('novoOrcamento.html');
 });
 
-app.get('/lista-orcamento', (req, res) => {
+app.get('/lista-orcamento', (_req, res) => {
   res.render('listagemOrcamento.html');
 });
 
-app.get('/registrar-estoque', (req, res) => {
+app.get('/registrar-estoque', (_req, res) => {
   res.render('registrarEstoque.html');
 });
 
-app.get('/listagem-estoque', (req, res) => {
+app.get('/listagem-estoque', (_req, res) => {
   res.render('listagemEstoques.html');
 });
 
-app.get('/listagem-gastos', (req, res) => {
+app.get('/listagem-gastos', (_req, res) => {
   res.render('listagemGastos.html');
 });
 
-app.get('/lista-pedido', (req, res) => {
+app.get('/lista-pedido', (_req, res) => {
   res.render('listagemPedidos.html');
 });
 
-app.get('/json/lista-orcamento', async (req, res) => {
+app.get('/json/lista-orcamento', async (_req, res) => {
   const resp = await Pedido.findAll({
     attributes: ['id', 'data_pedido'],
     where: {
@@ -80,7 +82,7 @@ app.get('/json/cliente/:cpf', async (req, res) => {
   return res.json(resp);
 });
 
-app.get('/json/lista-pedido', async (req, res) => {
+app.get('/json/lista-pedido', async (_req, res) => {
   const resp = await Pedido.findAll({
     attributes: ['id', 'data_pedido', 'status_pedido'],
     where: {
@@ -95,7 +97,7 @@ app.get('/json/lista-pedido', async (req, res) => {
   return res.json(resp);
 });
 
-app.get('/json/lista-estoque', async (req, res) => {
+app.get('/json/lista-estoque', async (_req, res) => {
   const resp = await Estoque.findAll({
     attributes: ['id', 'quantidade', 'valor', 'descricao', 'tipo'],
     order: ['tipo', 'quantidade']
@@ -110,7 +112,7 @@ app.get('/json/estoque/:id', async (req, res) => {
   return res.json(resp);
 });
 
-app.get('/json/lista-gastos', async (req, res) => {
+app.get('/json/lista-gastos', async (_req, res) => {
   const resp = await Gastos.findAll({
     include: Estoque,
     order: ['createdAt']
