@@ -2,8 +2,8 @@ const express = require('express');
 const path = require('path');
 const bodyParser = require('body-parser');
 const admin = require('firebase-admin');
-// const serviceAccount = require('firebaseConfig');
-const serviceAccount = require('./config/config_key.json')
+const serviceAccount = require('./config/config_key.json'); // Substitua pelo caminho correto do arquivo JSON
+
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://central-grafica-a134f.firebaseio.com"  // Certifique-se de usar o URL correto do seu banco de dados
@@ -12,45 +12,44 @@ admin.initializeApp({
 const db = admin.firestore();
 
 const app = express();
-const port = process.env.PORT || 8080;
+const port = process.env.PORT || 8080; // Mude para 8081 ou outra porta desejada
 
-app.set('view engine', 'ejs');
-app.use(express.static("public"));
-app.set('views', path.join(__dirname, 'pages'));
+app.use(express.static(path.join(__dirname, 'public')));
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// Rota para o index.html na raiz
 app.get('/', (req, res) => {
-  res.render('index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+// Outras rotas
 app.get('/index', (req, res) => {
-  res.render('index.html');
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
+
+// Rotas para outros arquivos HTML na pasta public/pages
 app.get("/novo-orcamento", (req, res) => {
-  res.render('novoOrcamento.html');
+  res.sendFile(path.join(__dirname, 'public/pages/novoOrcamento.html'));
 });
 
 app.get('/lista-orcamento', (req, res) => {
-  res.render('listaOrcamento.html');
+  res.sendFile(path.join(__dirname, 'public/pages/listagemOrcamento.html'));
 });
 
 app.get('/registrar-estoque', (req, res) => {
-  res.render('registrarEstoque.html');
+  res.sendFile(path.join(__dirname, 'public/pages/registrarEstoque.html'));
 });
 
 app.get('/listagem-estoque', (req, res) => {
-  res.render('listagemEstoque.html');
+  res.sendFile(path.join(__dirname, 'public/pages/listagemEstoques.html'));
 });
 
 app.get('/listagem-gastos', (req, res) => {
-  res.render('listagemGastos.html');
+  res.sendFile(path.join(__dirname, 'public/pages/listagemGastos.html'));
 });
 
-app.get('/lista-pedido', (req, res) => {
-  res.render('listaPedidos.html');
-});
-
+// Rotas JSON para a API
 app.get('/json/lista-orcamento', async (req, res) => {
   const snapshot = await db.collection('Pedido').where('status_pedido', '==', 'Em_orcamento').get();
   const orcamentos = snapshot.docs.map(doc => doc.data());
